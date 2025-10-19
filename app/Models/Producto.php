@@ -12,11 +12,13 @@ class Producto extends Model
     protected $table = 'productos';
 
     protected $fillable = [
+        'ean_producto',
         'Referencia',
         'Gramos',
         'Tamano',
         'Color',
         'PrecioUnitario',
+        'imagen',
         'CantidadStock',
         'Estado'
     ];

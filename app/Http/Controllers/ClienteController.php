@@ -23,7 +23,7 @@ class ClienteController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
+            'telefono' => 'required|string|max:255',
             'cedula' => 'required|string|unique:clientes,cedula',
             'area' => 'nullable|string|max:255',
             'email' => 'required|email|unique:clientes,email'
@@ -51,7 +51,7 @@ class ClienteController extends Controller
 
         $validated = $request->validate([
             'nombre' => 'sometimes|required|string|max:255',
-            'apellido' => 'sometimes|required|string|max:255',
+            'telefono' => 'sometimes|required|string|max:255',
             'cedula' => 'sometimes|required|string|unique:clientes,cedula,' . $id,
             'area' => 'nullable|string|max:255',
             'email' => 'sometimes|required|email|unique:clientes,email,' . $id
