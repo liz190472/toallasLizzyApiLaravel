@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 
 class ProductoController extends Controller
 {
-    // Listar todos los productos
     public function index()
     {
         $productos = Producto::all();
@@ -17,54 +16,36 @@ class ProductoController extends Controller
         ], 200);
     }
 
-    // Crear un nuevo producto
     public function store(Request $request)
     {
-        // LOG PARA DEBUG
-        \Log::info('=== STORE PRODUCTO ===', [
-            'has_file_imagen' => $request->hasFile('imagen'),
-            'all_files' => array_keys($request->allFiles()),
-            'all_input' => $request->except(['imagen']),
-            'content_type' => $request->header('Content-Type'),
-        ]);
-
         $request->validate([
             'ean_producto' => 'required|string|max:50',
-            'Referencia' => 'required|string|max:100',
-            'Gramos' => 'nullable|numeric',
-            'Tamano' => 'nullable|string|max:50',
-            'Color' => 'nullable|string|max:50',
-            'PrecioUnitario' => 'required|numeric',
+            'referencia' => 'required|string|max:100',
+            'gramos' => 'nullable|numeric',
+            'tamano' => 'nullable|string|max:50',
+            'color' => 'nullable|string|max:50',
+            'preciounitario' => 'required|numeric',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $imagenPath = null;
 
-        // Guardar la imagen si existe
         if ($request->hasFile('imagen')) {
-            \Log::info('IMAGEN ENCONTRADA', ['nombre' => $request->file('imagen')->getClientOriginalName()]);
-            
             $imagen = $request->file('imagen');
             $nombreImagen = time() . '_' . $imagen->getClientOriginalName();
-            
-            // Guardar en public/imagenes
             $imagen->move(public_path('imagenes'), $nombreImagen);
             $imagenPath = '/imagenes/' . $nombreImagen;
-            
-            \Log::info('IMAGEN GUARDADA', ['ruta' => $imagenPath]);
-        } else {
-            \Log::info('SIN IMAGEN');
         }
 
         $producto = Producto::create([
             'ean_producto' => $request->ean_producto,
-            'Referencia' => $request->Referencia,
-            'Gramos' => $request->Gramos,
-            'Tamano' => $request->Tamano,
-            'Color' => $request->Color,
-            'PrecioUnitario' => $request->PrecioUnitario,
+            'Referencia' => $request->referencia,
+            'Gramos' => $request->gramos,
+            'Tamano' => $request->tamano,
+            'Color' => $request->color,
+            'PrecioUnitario' => $request->preciounitario,
             'imagen' => $imagenPath,
-            'CantidadStock' => $request->CantidadStock ?? 0,
+            'CantidadStock' => $request->cantidadstock ?? 0,
             'Estado' => 'activo',
         ]);
 
@@ -75,7 +56,6 @@ class ProductoController extends Controller
         ], 201);
     }
 
-    // Ver un producto específico
     public function show($id)
     {
         $producto = Producto::find($id);
@@ -93,7 +73,6 @@ class ProductoController extends Controller
         ], 200);
     }
 
-    // Actualizar un producto
     public function update(Request $request, $id)
     {
         $producto = Producto::find($id);
@@ -107,19 +86,17 @@ class ProductoController extends Controller
 
         $request->validate([
             'ean_producto' => 'required|string|max:50',
-            'Referencia' => 'required|string|max:100',
-            'Gramos' => 'nullable|numeric',
-            'Tamano' => 'nullable|string|max:50',
-            'Color' => 'nullable|string|max:50',
-            'PrecioUnitario' => 'required|numeric',
+            'referencia' => 'required|string|max:100',
+            'gramos' => 'nullable|numeric',
+            'tamano' => 'nullable|string|max:50',
+            'color' => 'nullable|string|max:50',
+            'preciounitario' => 'required|numeric',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $imagenPath = $producto->imagen; // Mantener la imagen actual
+        $imagenPath = $producto->imagen;
 
-        // Si hay nueva imagen, eliminar la anterior y guardar la nueva
         if ($request->hasFile('imagen')) {
-            // Eliminar imagen anterior si existe
             if ($producto->imagen && file_exists(public_path($producto->imagen))) {
                 unlink(public_path($producto->imagen));
             }
@@ -132,13 +109,13 @@ class ProductoController extends Controller
 
         $producto->update([
             'ean_producto' => $request->ean_producto,
-            'Referencia' => $request->Referencia,
-            'Gramos' => $request->Gramos,
-            'Tamano' => $request->Tamano,
-            'Color' => $request->Color,
-            'PrecioUnitario' => $request->PrecioUnitario,
+            'Referencia' => $request->referencia,
+            'Gramos' => $request->gramos,
+            'Tamano' => $request->tamano,
+            'Color' => $request->color,
+            'PrecioUnitario' => $request->preciounitario,
             'imagen' => $imagenPath,
-            'CantidadStock' => $request->CantidadStock ?? $producto->CantidadStock,
+            'CantidadStock' => $request->cantidadstock ?? $producto->CantidadStock,
         ]);
 
         return response()->json([
@@ -148,7 +125,6 @@ class ProductoController extends Controller
         ], 200);
     }
 
-    // Eliminar un producto
     public function destroy($id)
     {
         $producto = Producto::find($id);
@@ -160,7 +136,6 @@ class ProductoController extends Controller
             ], 404);
         }
 
-        // Eliminar imagen si existe
         if ($producto->imagen && file_exists(public_path($producto->imagen))) {
             unlink(public_path($producto->imagen));
         }
